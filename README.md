@@ -3,6 +3,7 @@
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen.svg)](http://txorav.me/attentix/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-61dafb.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4-646CFF.svg)](https://vitejs.dev/)
@@ -13,7 +14,7 @@
 **An open-source, mathematically grounded visual attention and saliency prediction engine.**  
 *Predicts human gaze distributions, saccadic scanpaths, and Area of Interest (AOI) metrics in real time—100% locally in your browser.*
 
-[Live Studio Features](#-key-features) • [Mathematical Foundation](#-mathematical-foundations) • [Quality Gates & Benchmarks](#-verification--quality-gates) • [Quickstart](#-quickstart) • [Colab Training](#-cloud-model-distillation-google-colab)
+[🚀 Open Live Studio](http://txorav.me/attentix/) • [Live Studio Features](#-key-features) • [Mathematical Foundation](#-mathematical-foundations) • [Quality Gates & Benchmarks](#-verification--quality-gates) • [Quickstart](#-quickstart) • [Colab Training](#-cloud-model-distillation-google-colab)
 
 </div>
 
