@@ -121,7 +121,11 @@ function getModelPathForTier(tier: string): string {
       : tier === 'hybrid'
       ? 'high'
       : tier;
-  return `/models/attentix_${normalized}.onnx`;
+  const base =
+    typeof location !== 'undefined' && location.pathname.includes('/attentix')
+      ? '/attentix'
+      : '';
+  return `${base}/models/attentix_${normalized}.onnx`;
 }
 
 async function getOrInitOnnxSession(tier: string): Promise<ort.InferenceSession | null> {
@@ -135,7 +139,11 @@ async function getOrInitOnnxSession(tier: string): Promise<ort.InferenceSession 
     try {
       // Explicitly configure wasm path & thread concurrency dynamically based on hardware profile
       if (ort.env.wasm) {
-        ort.env.wasm.wasmPaths = '/';
+        const wasmBase =
+          typeof location !== 'undefined' && location.pathname.includes('/attentix')
+            ? '/attentix/'
+            : '/';
+        ort.env.wasm.wasmPaths = wasmBase;
         ort.env.wasm.numThreads = profile.threads;
         ort.env.wasm.simd = true;
       }

@@ -15,10 +15,12 @@ import {
   Shapes,
   Type,
   X,
+  Loader2,
 } from 'lucide-react';
 
 interface StudioMetricsRailProps {
   analysis: SaliencyTensorResult | null;
+  isAnalyzing?: boolean;
   aois: AOIRegion[];
   onSelectAoi: (id: string | null) => void;
   selectedAoiId: string | null;
@@ -28,6 +30,7 @@ interface StudioMetricsRailProps {
 
 export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
   analysis,
+  isAnalyzing = false,
   aois,
   onSelectAoi,
   selectedAoiId,
@@ -38,18 +41,43 @@ export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
 
   if (!analysis) {
     return (
-      <aside className="w-full lg:w-80 bg-[#11131C] border-l border-white/10 p-4 flex flex-col items-center justify-center text-center text-zinc-500 text-xs">
-        {onCloseMobile && (
-          <button
-            onClick={onCloseMobile}
-            className="lg:hidden self-end p-1 text-zinc-400 hover:text-white"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-        <Activity className="w-8 h-8 opacity-30 mb-2" />
-        <p>No active saliency tensor computed.</p>
-        <p className="text-[11px] text-zinc-600 mt-1">Upload an asset or choose a benchmark to start.</p>
+      <aside className="w-full lg:w-80 bg-[#11131C] border-l border-white/10 flex flex-col h-full overflow-hidden select-none z-20">
+        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+            <Zap className={`w-3.5 h-3.5 ${isAnalyzing ? 'text-[#00E599]' : 'text-zinc-500'}`} />
+            Cognitive Diagnostics
+          </span>
+          {onCloseMobile && (
+            <button
+              onClick={onCloseMobile}
+              className="lg:hidden p-1 rounded hover:bg-white/10 text-zinc-400 hover:text-white"
+              title="Close sheet"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          {isAnalyzing ? (
+            <div className="flex flex-col items-center max-w-[240px]">
+              <div className="relative mb-4">
+                <div className="w-12 h-12 rounded-full border-2 border-[#00E599]/20 border-t-[#00E599] animate-spin" />
+                <Activity className="w-5 h-5 text-[#00E599] absolute inset-0 m-auto animate-pulse" />
+              </div>
+              <p className="text-sm font-medium text-zinc-200">Computing Saliency Map</p>
+              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                Executing multi-pass neural ensemble and calculating cognitive hierarchy metrics...
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center text-zinc-500 text-xs">
+              <Activity className="w-8 h-8 opacity-30 mb-2" />
+              <p>No active saliency tensor computed.</p>
+              <p className="text-[11px] text-zinc-600 mt-1">Upload an asset or choose a benchmark to start.</p>
+            </div>
+          )}
+        </div>
       </aside>
     );
   }
@@ -72,7 +100,7 @@ export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
       : { label: 'High Cognitive Load', color: 'text-rose-400 bg-rose-500/10 border-rose-500/30' };
 
   return (
-    <aside className="w-full lg:w-84 bg-[#11131C] border-l border-white/10 flex flex-col h-full overflow-hidden select-none z-20">
+    <aside className="w-full lg:w-80 bg-[#11131C] border-l border-white/10 flex flex-col h-full overflow-hidden select-none z-20">
       {/* Top Scores Header */}
       <div className="p-4 border-b border-white/10 space-y-3">
         <div className="flex items-center justify-between">

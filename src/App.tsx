@@ -550,9 +550,10 @@ export function App() {
         />
 
         {/* Desktop Fixed Telemetry Rail */}
-        <div className="hidden lg:block h-full">
+        <div className="hidden lg:block h-full w-80 flex-shrink-0">
           <StudioMetricsRail
             analysis={analysisResult}
+            isAnalyzing={isAnalyzing}
             aois={aois}
             onSelectAoi={setSelectedAoiId}
             selectedAoiId={selectedAoiId}
@@ -572,6 +573,7 @@ export function App() {
             <div className="relative w-full max-w-sm sm:max-w-md h-full bg-[#11131C] border-l border-white/15 shadow-2xl z-10 animate-in slide-in-from-right duration-200">
               <StudioMetricsRail
                 analysis={analysisResult}
+                isAnalyzing={isAnalyzing}
                 aois={aois}
                 onSelectAoi={setSelectedAoiId}
                 selectedAoiId={selectedAoiId}
