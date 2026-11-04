@@ -266,7 +266,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
           </button>
 
           {isProjectMenuOpen && (
-            <div className="absolute top-full mt-2 left-0 w-80 bg-[#11131C] border border-white/15 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+            <div className="absolute top-full mt-2 left-0 w-80 max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-5rem)] overflow-y-auto bg-[#11131C] border border-white/15 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
               <div className="flex items-center justify-between px-2 py-1.5 border-b border-white/10 text-xs text-zinc-400">
                 <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">
                   Projects ({projects.length})
@@ -436,7 +436,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
           </button>
 
           {isUrlMenuOpen && (
-            <div className="absolute top-full mt-2 left-0 w-96 p-3 bg-[#11131C] border border-white/15 rounded-lg shadow-2xl z-50">
+            <div className="absolute top-full mt-2 left-0 w-96 max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-5rem)] overflow-y-auto p-3 bg-[#11131C] border border-white/15 rounded-lg shadow-2xl z-50">
               <form onSubmit={handleUrlSubmit} className="space-y-3">
                 <div className="flex items-center justify-between text-xs text-zinc-400">
                   <span>Enter live website URL</span>
@@ -508,7 +508,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
           </button>
 
           {isSampleMenuOpen && (
-            <div className="absolute top-full mt-2 left-0 w-64 bg-[#11131C] border border-white/15 rounded-lg shadow-2xl py-1.5 z-50">
+            <div className="absolute top-full mt-2 left-0 w-64 max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-5rem)] overflow-y-auto bg-[#11131C] border border-white/15 rounded-lg shadow-2xl py-1.5 z-50">
               <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-zinc-500">
                 1-Click Procedural Suite
               </div>
@@ -565,14 +565,24 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
               />
 
               {/* Menu Card */}
-              <div className="absolute top-full mt-2 right-0 w-[440px] bg-[#11131C] border border-white/15 rounded-xl shadow-2xl p-3.5 z-50 animate-in fade-in zoom-in-95 duration-100 space-y-3.5 text-xs">
-                {/* Header */}
-                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+              <div className="absolute top-full mt-2 right-0 w-[calc(100vw-1.5rem)] sm:w-[460px] max-w-[460px] max-h-[calc(100vh-5rem)] overflow-y-auto bg-[#11131C] border border-white/15 rounded-xl shadow-2xl p-3.5 z-50 animate-in fade-in zoom-in-95 duration-100 space-y-3.5 text-xs">
+                {/* Header (Sticky at top of card when scrolling) */}
+                <div className="sticky -top-3.5 -mx-3.5 px-3.5 pt-3.5 pb-2.5 bg-[#11131C]/95 backdrop-blur-md border-b border-white/10 z-20 flex items-center justify-between">
                   <div className="flex items-center gap-1.5 font-medium text-white">
                     <SlidersHorizontal className="w-4 h-4 text-[#00E599]" />
                     <span>Model Architecture & Analysis Quality</span>
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-500">Spec v2.4</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-zinc-500">Spec v2.4</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsModelMenuOpen(false)}
+                      className="p-1 rounded text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                      title="Close"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* 1. Architecture Selector */}
