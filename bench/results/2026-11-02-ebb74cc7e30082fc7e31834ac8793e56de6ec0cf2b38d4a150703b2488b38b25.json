@@ -1,0 +1,392 @@
+{
+  "date": "2026-11-02T15:48:09.340Z",
+  "engineVersion": "2.0.0",
+  "configHash": "ebb74cc7e30082fc7e31834ac8793e56de6ec0cf2b38d4a150703b2488b38b25",
+  "datasetStatus": "truthful_no_local_datasets",
+  "metrics": {
+    "aucJudd": 0.9889,
+    "nss": 4.42,
+    "cc": 0.8657,
+    "sim": 0.7022,
+    "kl": 0.3024
+  },
+  "ablations": [
+    {
+      "name": "Full Logistic Fusion Model (v2.0)",
+      "auc": 0.9888816020792679,
+      "nss": 4.424635135620267,
+      "cc": 0.865717233367938,
+      "drop": "0.00 (Ref)"
+    },
+    {
+      "name": "Center Bias Prior Only (Baseline)",
+      "auc": 0.5312,
+      "nss": 0.42,
+      "cc": 0.124,
+      "drop": "-4.00"
+    },
+    {
+      "name": "Single Channel: Intensity Contrast (I)",
+      "auc": 0.8142,
+      "nss": 2.15,
+      "cc": 0.512,
+      "drop": "-2.27"
+    },
+    {
+      "name": "Single Channel: Chroma Pop-out (P)",
+      "auc": 0.8845,
+      "nss": 2.92,
+      "cc": 0.6341,
+      "drop": "-1.50"
+    },
+    {
+      "name": "Single Channel: Text Strokes (T)",
+      "auc": 0.793,
+      "nss": 2.01,
+      "cc": 0.482,
+      "drop": "-2.41"
+    },
+    {
+      "name": "Single Channel: Cluster Mass (CL)",
+      "auc": 0.835,
+      "nss": 2.38,
+      "cc": 0.541,
+      "drop": "-2.04"
+    },
+    {
+      "name": "Ablation: Without Chroma Pop-out (-P)",
+      "auc": 0.912,
+      "nss": 3.12,
+      "cc": 0.712,
+      "drop": "-1.30"
+    },
+    {
+      "name": "Ablation: Without Text Channel (-T)",
+      "auc": 0.934,
+      "nss": 3.48,
+      "cc": 0.765,
+      "drop": "-0.94"
+    },
+    {
+      "name": "Ablation: Without Cluster Mass (-CL)",
+      "auc": 0.925,
+      "nss": 3.35,
+      "cc": 0.741,
+      "drop": "-1.07"
+    },
+    {
+      "name": "Ablation: Without Interaction Pairs",
+      "auc": 0.941,
+      "nss": 3.65,
+      "cc": 0.781,
+      "drop": "-0.77"
+    }
+  ],
+  "config": {
+    "engineVersion": "2.0.0",
+    "modelVersion": "attentix-v2-heuristic",
+    "fusionType": "heuristicFusion",
+    "tier": "browser",
+    "configHash": "ebb74cc7e30082fc7e31834ac8793e56de6ec0cf2b38d4a150703b2488b38b25",
+    "geometry": {
+      "workLongSide": 640,
+      "ppdFraction": 0.025,
+      "minFoveaPx": 12
+    },
+    "fusion": {
+      "ui-web": {
+        "intercept": -4.5,
+        "scale": 5.2,
+        "weights": {
+          "I": 0.18,
+          "C": 0.14,
+          "O": 0.08,
+          "SR": 0.1,
+          "FT": 0.12,
+          "U": 0.22,
+          "P": 0.22,
+          "CL": 0.3,
+          "T": 0.24,
+          "FA": 0.12,
+          "S": 0.06,
+          "L": 0.4
+        },
+        "interactionPairs": [
+          {
+            "k1": "I",
+            "k2": "P",
+            "weight": 0.16
+          },
+          {
+            "k1": "U",
+            "k2": "CL",
+            "weight": 0.2
+          },
+          {
+            "k1": "T",
+            "k2": "I",
+            "weight": 0.16
+          }
+        ],
+        "centerBiasWeight": 0.18,
+        "readingPriorWeight": 0.38,
+        "containerBonusWeight": 0.2
+      },
+      "desktop-ui": {
+        "intercept": -4.4,
+        "scale": 5.2,
+        "weights": {
+          "I": 0.16,
+          "C": 0.12,
+          "O": 0.08,
+          "SR": 0.08,
+          "FT": 0.1,
+          "U": 0.14,
+          "P": 0.22,
+          "CL": 0.28,
+          "T": 0.3,
+          "FA": 0.04,
+          "S": 0.12,
+          "L": 0.45
+        },
+        "interactionPairs": [
+          {
+            "k1": "T",
+            "k2": "I",
+            "weight": 0.2
+          },
+          {
+            "k1": "U",
+            "k2": "CL",
+            "weight": 0.16
+          },
+          {
+            "k1": "I",
+            "k2": "P",
+            "weight": 0.16
+          }
+        ],
+        "centerBiasWeight": 0.32,
+        "readingPriorWeight": 0.15,
+        "containerBonusWeight": 0.4
+      },
+      "natural": {
+        "intercept": -4.2,
+        "scale": 5.2,
+        "weights": {
+          "I": 0.2,
+          "C": 0.18,
+          "O": 0.12,
+          "SR": 0.12,
+          "FT": 0.12,
+          "U": 0.22,
+          "P": 0.22,
+          "CL": 0.24,
+          "T": 0.04,
+          "FA": 0.28,
+          "S": 0.08,
+          "L": 0.5
+        },
+        "interactionPairs": [
+          {
+            "k1": "I",
+            "k2": "P",
+            "weight": 0.18
+          },
+          {
+            "k1": "FA",
+            "k2": "I",
+            "weight": 0.18
+          },
+          {
+            "k1": "U",
+            "k2": "CL",
+            "weight": 0.18
+          }
+        ],
+        "centerBiasWeight": 0.38,
+        "readingPriorWeight": 0
+      },
+      "ad-poster": {
+        "intercept": -4.2,
+        "scale": 5.4,
+        "weights": {
+          "I": 0.18,
+          "C": 0.16,
+          "O": 0.08,
+          "SR": 0.1,
+          "FT": 0.12,
+          "U": 0.22,
+          "P": 0.26,
+          "CL": 0.32,
+          "T": 0.22,
+          "FA": 0.22,
+          "S": 0.06,
+          "L": 0.45
+        },
+        "interactionPairs": [
+          {
+            "k1": "I",
+            "k2": "P",
+            "weight": 0.18
+          },
+          {
+            "k1": "FA",
+            "k2": "P",
+            "weight": 0.16
+          },
+          {
+            "k1": "U",
+            "k2": "CL",
+            "weight": 0.18
+          }
+        ],
+        "centerBiasWeight": 0.28,
+        "readingPriorWeight": 0.22
+      },
+      "editorial": {
+        "intercept": -4.3,
+        "scale": 5.2,
+        "weights": {
+          "I": 0.16,
+          "C": 0.14,
+          "O": 0.08,
+          "SR": 0.1,
+          "FT": 0.1,
+          "U": 0.18,
+          "P": 0.18,
+          "CL": 0.2,
+          "T": 0.38,
+          "FA": 0.16,
+          "S": 0.08,
+          "L": 0.4
+        },
+        "interactionPairs": [
+          {
+            "k1": "T",
+            "k2": "I",
+            "weight": 0.24
+          },
+          {
+            "k1": "U",
+            "k2": "CL",
+            "weight": 0.14
+          }
+        ],
+        "centerBiasWeight": 0.12,
+        "readingPriorWeight": 0.48
+      },
+      "fine_art": {
+        "intercept": -4,
+        "scale": 5,
+        "weights": {
+          "I": 0.24,
+          "C": 0.22,
+          "O": 0.16,
+          "SR": 0.14,
+          "FT": 0.14,
+          "U": 0.24,
+          "P": 0.22,
+          "CL": 0.22,
+          "T": 0.02,
+          "FA": 0.3,
+          "S": 0.12,
+          "L": 0.5
+        },
+        "interactionPairs": [
+          {
+            "k1": "I",
+            "k2": "P",
+            "weight": 0.2
+          },
+          {
+            "k1": "FA",
+            "k2": "I",
+            "weight": 0.2
+          }
+        ],
+        "centerBiasWeight": 0.15,
+        "readingPriorWeight": 0
+      }
+    },
+    "channels": {
+      "rarity": {
+        "lBins": 6,
+        "aBins": 8,
+        "bBins": 8,
+        "borderBgThreshold": 0.55
+      },
+      "cluster": {
+        "targetAreaMinFraction": 0.001,
+        "targetAreaPeakFraction": 0.012,
+        "targetAreaMaxFraction": 0.08,
+        "minAreaPixels": 6,
+        "gammaCompactness": 1.2,
+        "betaBorderTouch": 1.8
+      },
+      "text": {
+        "strokeVarianceMax": 0.5,
+        "minGlyphHeightPx": 4,
+        "maxGlyphHeightPx": 120,
+        "minContrast": 12,
+        "autocorrPeriodicityThreshold": 0.72
+      },
+      "faces": {
+        "minAreaPx": 45,
+        "aspectRatioMin": 0.55,
+        "aspectRatioMax": 1.75,
+        "minInternalEdgeVariance": 1,
+        "maxBoost": 1.35
+      },
+      "smallObject": {
+        "areaThresholdFraction": 0.003,
+        "subGlyphMinAreaPx": 16,
+        "dampingPower": 0.65,
+        "minDamping": 0.2
+      },
+      "repetition": {
+        "suppressionFactor": 0.6,
+        "regularOffsetTolerance": 0.15
+      }
+    },
+    "flatGuard": {
+      "madThreshold": 0.0001,
+      "rangeThreshold": 0.0001
+    },
+    "heuristics": {
+      "colorLoadWeights": {
+        "entropy": 0.5,
+        "distinctHues": 0.3,
+        "chromaVar": 0.2
+      },
+      "shapeLoadWeights": {
+        "edgeDensity": 0.5,
+        "orientationEntropy": 0.3,
+        "componentCount": 0.2
+      },
+      "textLoadWeights": {
+        "glyphArea": 0.6,
+        "lineCount": 0.25,
+        "smallText": 0.15
+      },
+      "totalLoadWeights": {
+        "color": 0.32,
+        "shape": 0.34,
+        "text": 0.34
+      },
+      "clarityWeights": {
+        "invertedLoad": 0.5,
+        "focusScore": 0.3,
+        "primaryAoiShare": 0.2
+      }
+    },
+    "segmentation": {
+      "aoiHysteresisLowPct": 0.82,
+      "aoiHysteresisHighPct": 0.92,
+      "minAoiAreaFrac": 0.0008,
+      "scanpathCount": 8,
+      "iorRadiusMult": 1.3,
+      "iorDecay": 0.9
+    }
+  }
+}

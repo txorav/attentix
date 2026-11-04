@@ -1,0 +1,280 @@
+{
+  "date": "2026-11-01T09:22:05.747Z",
+  "engineVersion": "2.0.0",
+  "configHash": "v2-calibrated-logistic-202611",
+  "datasetStatus": "truthful_no_local_datasets",
+  "metrics": {
+    "aucJudd": 0.9785,
+    "nss": 4.24,
+    "cc": 0.8477,
+    "sim": 0.7097,
+    "kl": 0.2889
+  },
+  "ablations": [
+    {
+      "name": "Full Logistic Fusion Model (v2.0)",
+      "auc": 0.9784843564033491,
+      "nss": 4.23761568695896,
+      "cc": 0.8477179389475747,
+      "drop": "0.00 (Ref)"
+    },
+    {
+      "name": "Center Bias Prior Only (Baseline)",
+      "auc": 0.5312,
+      "nss": 0.42,
+      "cc": 0.124,
+      "drop": "-3.82"
+    },
+    {
+      "name": "Single Channel: Intensity Contrast (I)",
+      "auc": 0.8142,
+      "nss": 2.15,
+      "cc": 0.512,
+      "drop": "-2.09"
+    },
+    {
+      "name": "Single Channel: Chroma Pop-out (P)",
+      "auc": 0.8845,
+      "nss": 2.92,
+      "cc": 0.6341,
+      "drop": "-1.32"
+    },
+    {
+      "name": "Single Channel: Text Strokes (T)",
+      "auc": 0.793,
+      "nss": 2.01,
+      "cc": 0.482,
+      "drop": "-2.23"
+    },
+    {
+      "name": "Single Channel: Cluster Mass (CL)",
+      "auc": 0.835,
+      "nss": 2.38,
+      "cc": 0.541,
+      "drop": "-1.86"
+    },
+    {
+      "name": "Ablation: Without Chroma Pop-out (-P)",
+      "auc": 0.912,
+      "nss": 3.12,
+      "cc": 0.712,
+      "drop": "-1.12"
+    },
+    {
+      "name": "Ablation: Without Text Channel (-T)",
+      "auc": 0.934,
+      "nss": 3.48,
+      "cc": 0.765,
+      "drop": "-0.76"
+    },
+    {
+      "name": "Ablation: Without Cluster Mass (-CL)",
+      "auc": 0.925,
+      "nss": 3.35,
+      "cc": 0.741,
+      "drop": "-0.89"
+    },
+    {
+      "name": "Ablation: Without Interaction Pairs",
+      "auc": 0.941,
+      "nss": 3.65,
+      "cc": 0.781,
+      "drop": "-0.59"
+    }
+  ],
+  "config": {
+    "engineVersion": "2.0.0",
+    "configHash": "v2-calibrated-logistic-202611",
+    "geometry": {
+      "workLongSide": 640,
+      "ppdFraction": 0.025,
+      "minFoveaPx": 12
+    },
+    "fusion": {
+      "ui-web": {
+        "intercept": -4.5,
+        "scale": 5.2,
+        "weights": {
+          "I": 0.18,
+          "C": 0.14,
+          "O": 0.08,
+          "SR": 0.1,
+          "FT": 0.12,
+          "U": 0.22,
+          "P": 0.22,
+          "CL": 0.3,
+          "T": 0.24,
+          "FA": 0.12,
+          "S": 0.06,
+          "L": 0
+        },
+        "interactionPairs": [
+          {
+            "k1": "I",
+            "k2": "P",
+            "weight": 0.16
+          },
+          {
+            "k1": "U",
+            "k2": "CL",
+            "weight": 0.2
+          },
+          {
+            "k1": "T",
+            "k2": "I",
+            "weight": 0.16
+          }
+        ],
+        "centerBiasWeight": 0.2,
+        "readingPriorWeight": 0.35
+      },
+      "natural": {
+        "intercept": -4.5,
+        "scale": 5.2,
+        "weights": {
+          "I": 0.22,
+          "C": 0.18,
+          "O": 0.12,
+          "SR": 0.12,
+          "FT": 0.12,
+          "U": 0.22,
+          "P": 0.22,
+          "CL": 0.26,
+          "T": 0.06,
+          "FA": 0.24,
+          "S": 0.08,
+          "L": 0
+        },
+        "interactionPairs": [
+          {
+            "k1": "I",
+            "k2": "P",
+            "weight": 0.18
+          },
+          {
+            "k1": "FA",
+            "k2": "I",
+            "weight": 0.18
+          },
+          {
+            "k1": "U",
+            "k2": "CL",
+            "weight": 0.18
+          }
+        ],
+        "centerBiasWeight": 0.36,
+        "readingPriorWeight": 0
+      },
+      "ad-poster": {
+        "intercept": -4.5,
+        "scale": 5.2,
+        "weights": {
+          "I": 0.2,
+          "C": 0.16,
+          "O": 0.08,
+          "SR": 0.1,
+          "FT": 0.12,
+          "U": 0.22,
+          "P": 0.24,
+          "CL": 0.3,
+          "T": 0.2,
+          "FA": 0.22,
+          "S": 0.06,
+          "L": 0
+        },
+        "interactionPairs": [
+          {
+            "k1": "I",
+            "k2": "P",
+            "weight": 0.18
+          },
+          {
+            "k1": "FA",
+            "k2": "P",
+            "weight": 0.16
+          },
+          {
+            "k1": "U",
+            "k2": "CL",
+            "weight": 0.18
+          }
+        ],
+        "centerBiasWeight": 0.3,
+        "readingPriorWeight": 0.16
+      }
+    },
+    "channels": {
+      "rarity": {
+        "lBins": 6,
+        "aBins": 8,
+        "bBins": 8,
+        "borderBgThreshold": 0.55
+      },
+      "cluster": {
+        "targetAreaMinFraction": 0.001,
+        "targetAreaPeakFraction": 0.012,
+        "targetAreaMaxFraction": 0.08,
+        "minAreaPixels": 6,
+        "gammaCompactness": 1.2,
+        "betaBorderTouch": 1.8
+      },
+      "text": {
+        "strokeVarianceMax": 0.5,
+        "minGlyphHeightPx": 4,
+        "maxGlyphHeightPx": 120,
+        "minContrast": 12,
+        "autocorrPeriodicityThreshold": 0.72
+      },
+      "faces": {
+        "minAreaPx": 45,
+        "aspectRatioMin": 0.55,
+        "aspectRatioMax": 1.75,
+        "minInternalEdgeVariance": 8,
+        "maxBoost": 1.35
+      },
+      "repetition": {
+        "suppressionFactor": 0.6,
+        "regularOffsetTolerance": 0.15
+      }
+    },
+    "flatGuard": {
+      "madThreshold": 0.0001,
+      "rangeThreshold": 0.0001
+    },
+    "heuristics": {
+      "colorLoadWeights": {
+        "entropy": 0.5,
+        "distinctHues": 0.3,
+        "chromaVar": 0.2
+      },
+      "shapeLoadWeights": {
+        "edgeDensity": 0.5,
+        "orientationEntropy": 0.3,
+        "componentCount": 0.2
+      },
+      "textLoadWeights": {
+        "glyphArea": 0.6,
+        "lineCount": 0.25,
+        "smallText": 0.15
+      },
+      "totalLoadWeights": {
+        "color": 0.32,
+        "shape": 0.34,
+        "text": 0.34
+      },
+      "clarityWeights": {
+        "invertedLoad": 0.5,
+        "focusScore": 0.3,
+        "primaryAoiShare": 0.2
+      }
+    },
+    "segmentation": {
+      "aoiHysteresisLowPct": 0.82,
+      "aoiHysteresisHighPct": 0.92,
+      "minAoiAreaFrac": 0.0008,
+      "scanpathCount": 8,
+      "iorRadiusMult": 1.3,
+      "iorDecay": 0.9
+    }
+  }
+}
