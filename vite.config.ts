@@ -21,6 +21,7 @@ function urlCapturePlugin(): Plugin {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE_URL || './',
   plugins: [react(), urlCapturePlugin()],
   resolve: {
     alias: {

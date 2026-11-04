@@ -66,6 +66,9 @@ export function App() {
   const [aois, setAois] = useState<AOIRegion[]>([]);
   const [selectedAoiId, setSelectedAoiId] = useState<string | null>(null);
 
+  // Mobile Diagnostics Sheet Drawer
+  const [isMobileMetricsOpen, setIsMobileMetricsOpen] = useState(false);
+
   // Modals
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
@@ -483,6 +486,7 @@ export function App() {
         onDeleteProject={handleDeleteProject}
         onRenameProject={handleRenameProject}
         lastSavedTime={lastSavedTime}
+        onToggleMobileMetrics={() => setIsMobileMetricsOpen((v) => !v)}
       />
 
       {/* 2. Visual Mode Selector & Controls Bar */}
@@ -545,13 +549,38 @@ export function App() {
           }}
         />
 
-        <StudioMetricsRail
-          analysis={analysisResult}
-          aois={aois}
-          onSelectAoi={setSelectedAoiId}
-          selectedAoiId={selectedAoiId}
-          onDeleteAoi={handleDeleteAoi}
-        />
+        {/* Desktop Fixed Telemetry Rail */}
+        <div className="hidden lg:block h-full">
+          <StudioMetricsRail
+            analysis={analysisResult}
+            aois={aois}
+            onSelectAoi={setSelectedAoiId}
+            selectedAoiId={selectedAoiId}
+            onDeleteAoi={handleDeleteAoi}
+          />
+        </div>
+
+        {/* Mobile Slide-Over Telemetry Rail Drawer */}
+        {isMobileMetricsOpen && (
+          <div className="lg:hidden absolute inset-0 z-40 flex justify-end">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+              onClick={() => setIsMobileMetricsOpen(false)}
+            />
+            {/* Drawer Panel */}
+            <div className="relative w-full max-w-sm sm:max-w-md h-full bg-[#11131C] border-l border-white/15 shadow-2xl z-10 animate-in slide-in-from-right duration-200">
+              <StudioMetricsRail
+                analysis={analysisResult}
+                aois={aois}
+                onSelectAoi={setSelectedAoiId}
+                selectedAoiId={selectedAoiId}
+                onDeleteAoi={handleDeleteAoi}
+                onCloseMobile={() => setIsMobileMetricsOpen(false)}
+              />
+            </div>
+          </div>
+        )}
       </main>
 
       {/* 4. Modals */}

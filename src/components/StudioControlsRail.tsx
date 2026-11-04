@@ -116,11 +116,11 @@ export const StudioControlsRail: React.FC<StudioControlsRailProps> = ({
   ];
 
   return (
-    <div className="h-12 bg-[#11131C] border-b border-white/10 px-4 flex items-center justify-between select-none z-20 gap-3">
+    <div className="h-12 bg-[#11131C] border-b border-white/10 px-2 sm:px-4 flex items-center justify-between select-none z-20 gap-3 overflow-x-auto whitespace-nowrap">
       {/* Product Feature Indicator & View Mode Selector */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
         {/* Exactly One Product Feature Tab */}
-        <div className="flex items-center gap-2 pr-3 border-r border-white/10">
+        <div className="hidden sm:flex items-center gap-2 pr-3 border-r border-white/10">
           <div className="w-6 h-6 rounded bg-[#00E599]/15 border border-[#00E599]/40 flex items-center justify-center">
             <Flame className="w-3.5 h-3.5 text-[#00E599]" />
           </div>
@@ -243,7 +243,7 @@ export const StudioControlsRail: React.FC<StudioControlsRailProps> = ({
       </div>
 
       {/* Mode & Overlay Parameter Controls */}
-      <div className="flex items-center gap-4 text-xs">
+      <div className="flex items-center gap-2 sm:gap-4 text-xs flex-shrink-0">
         {/* Gaze Timeline Scrubber (visible when scanpath overlay or scanpath is active) */}
         {showScanpathOverlay && (
           <div className="flex items-center gap-2 bg-[#08090E] px-2.5 py-1 rounded-md border border-white/10">

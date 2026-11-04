@@ -663,7 +663,7 @@ export const StudioCanvas: React.FC<StudioCanvasProps> = ({
       </div>
 
       {/* Floating Canvas Toolbar */}
-      <div className="absolute top-4 left-6 z-20 flex items-center gap-1.5 p-1 bg-[#11131C]/90 backdrop-blur-md rounded-lg border border-white/10 shadow-xl">
+      <div className="absolute top-2.5 sm:top-4 left-2 sm:left-6 max-w-[calc(100vw-1rem)] sm:max-w-none overflow-x-auto z-20 flex items-center gap-1.5 p-1 bg-[#11131C]/90 backdrop-blur-md rounded-lg border border-white/10 shadow-xl">
         <button
           onClick={() => setActiveTool('select')}
           className={`p-2 rounded-md transition-colors ${

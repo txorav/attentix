@@ -31,6 +31,9 @@ import {
   Binary,
   Archive,
   Cpu,
+  Menu,
+  X,
+  BarChart3,
 } from 'lucide-react';
 
 interface StudioHeaderProps {
@@ -57,6 +60,7 @@ interface StudioHeaderProps {
   onDeleteProject: (id: string) => void;
   onRenameProject: (id: string, name: string) => void;
   lastSavedTime: number | null;
+  onToggleMobileMetrics?: () => void;
 }
 
 export const StudioHeader: React.FC<StudioHeaderProps> = ({
@@ -83,6 +87,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
   onDeleteProject,
   onRenameProject,
   lastSavedTime,
+  onToggleMobileMetrics,
 }) => {
   const [urlInput, setUrlInput] = useState('');
   const [viewport, setViewport] = useState<ViewportMode>('desktop');
@@ -90,6 +95,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
   const [isSampleMenuOpen, setIsSampleMenuOpen] = useState(false);
   const [isProjectMenuOpen, setIsProjectMenuOpen] = useState(false);
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editNameValue, setEditNameValue] = useState('');
 
@@ -226,32 +232,32 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
   };
 
   return (
-    <header className="h-14 bg-[#11131C] border-b border-white/10 px-4 flex items-center justify-between select-none z-30 relative">
+    <header className="h-14 bg-[#11131C] border-b border-white/10 px-2 sm:px-4 flex items-center justify-between select-none z-30 relative">
       {/* Brand & Projects Dropdown */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#00E599]/10 border border-[#00E599]/40 flex items-center justify-center">
-            <Layers className="w-4 h-4 text-[#00E599]" />
+      <div className="flex items-center gap-1.5 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#00E599]/10 border border-[#00E599]/40 flex items-center justify-center">
+            <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00E599]" />
           </div>
-          <span className="font-bold text-sm tracking-wide text-white">
-            attentix <span className="text-[#00E599] text-xs font-mono font-normal ml-1">STUDIO</span>
+          <span className="font-bold text-xs sm:text-sm tracking-wide text-white">
+            attentix <span className="text-[#00E599] text-[10px] sm:text-xs font-mono font-normal ml-0.5 sm:ml-1">STUDIO</span>
           </span>
         </div>
 
-        <div className="h-4 w-[1px] bg-white/10 mx-1" />
+        <div className="hidden sm:block h-4 w-[1px] bg-white/10 mx-1" />
 
         {/* Project Selector Menu */}
         <div className="relative">
           <button
             onClick={() => setIsProjectMenuOpen(!isProjectMenuOpen)}
-            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border text-xs transition-colors max-w-[240px] ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-md border text-xs transition-colors max-w-[130px] sm:max-w-[240px] ${
               isProjectMenuOpen
                 ? 'bg-[#00E599]/10 text-[#00E599] border-[#00E599]/40'
                 : 'bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10'
             }`}
           >
             <FolderOpen className="w-3.5 h-3.5 text-[#00E599] flex-shrink-0" />
-            <span className="truncate font-medium">{activeAssetTitle}</span>
+            <span className="truncate font-medium text-[11px] sm:text-xs">{activeAssetTitle}</span>
             {isAnalyzing ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00E599] flex-shrink-0 ml-1" />
             ) : (
@@ -369,7 +375,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
       </div>
 
       {/* Center Controls: URL Bar + Procedural Test Suite + Domain Preset */}
-      <div className="flex items-center gap-2">
+      <div className="hidden xl:flex items-center gap-2">
         {/* Domain Preset Selector */}
         <div className="flex items-center rounded-md bg-[#08090E] p-0.5 border border-white/10 text-xs">
           <button
@@ -766,7 +772,7 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
         {onOpenSpecs && (
           <button
             onClick={onOpenSpecs}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-xs text-zinc-300 border border-white/10 transition-colors"
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-xs text-zinc-300 border border-white/10 transition-colors"
             title="Attentix: Mathematical Model of Visual Attention (Algorithm Spec)"
           >
             <BookOpen className="w-3.5 h-3.5 text-[#00E599]" />
@@ -776,20 +782,116 @@ export const StudioHeader: React.FC<StudioHeaderProps> = ({
 
         <button
           onClick={onOpenUpload}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-xs text-zinc-300 border border-white/10 transition-colors"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-xs text-zinc-300 border border-white/10 transition-colors"
         >
           <Upload className="w-3.5 h-3.5" />
-          <span>Upload Asset</span>
+          <span className="hidden sm:inline">Upload Asset</span>
+          <span className="sm:hidden">Upload</span>
         </button>
 
         <button
           onClick={onOpenExport}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#00E599] hover:bg-[#00E599]/90 text-xs font-semibold text-[#08090E] transition-colors shadow-sm"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-md bg-[#00E599] hover:bg-[#00E599]/90 text-xs font-semibold text-[#08090E] transition-colors shadow-sm"
         >
           <Download className="w-3.5 h-3.5" />
-          <span>Export Telemetry</span>
+          <span className="hidden sm:inline">Export Telemetry</span>
+          <span className="sm:hidden">Export</span>
+        </button>
+
+        {/* Mobile Metrics Rail Toggle Button */}
+        {onToggleMobileMetrics && (
+          <button
+            onClick={onToggleMobileMetrics}
+            className="lg:hidden p-1.5 rounded-md bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 transition-colors"
+            title="Toggle Diagnostics & Metrics Sheet"
+          >
+            <BarChart3 className="w-4 h-4 text-[#00E599]" />
+          </button>
+        )}
+
+        {/* Mobile Hamburger Menu Toggle */}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="xl:hidden p-1.5 rounded-md bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 transition-colors"
+          title="Toggle Navigation Menu"
+        >
+          {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
         </button>
       </div>
+
+      {/* Mobile Drawer Navigation Menu */}
+      {isMobileMenuOpen && (
+        <div className="xl:hidden absolute top-full left-0 right-0 bg-[#11131C] border-b border-white/15 p-4 z-50 shadow-2xl space-y-4 max-h-[80vh] overflow-y-auto">
+          {/* Domain Presets */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400">Domain Visual Prior</span>
+            <div className="grid grid-cols-2 gap-1.5">
+              {[
+                { id: 'ui_ux' as DomainPreset, label: 'UI / UX' },
+                { id: 'advertising' as DomainPreset, label: 'Ad / Brand' },
+                { id: 'editorial_book' as DomainPreset, label: 'Editorial' },
+                { id: 'fine_art' as DomainPreset, label: 'Fine Art' },
+              ].map((dp) => (
+                <button
+                  key={dp.id}
+                  onClick={() => {
+                    onChangeDomainPreset(dp.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`px-3 py-2 rounded-lg border text-xs text-left transition-colors ${
+                    domainPreset === dp.id
+                      ? 'bg-[#00E599]/15 border-[#00E599] text-white font-medium'
+                      : 'bg-[#08090E] border-white/10 text-zinc-400'
+                  }`}
+                >
+                  {dp.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Procedural Benchmarks */}
+          <div className="space-y-1.5 pt-2 border-t border-white/10">
+            <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400">Procedural Benchmarks</span>
+            <div className="grid grid-cols-1 gap-1">
+              {PROCEDURAL_STUDIO_SAMPLES.map((sample) => (
+                <button
+                  key={sample.id}
+                  onClick={() => {
+                    onSelectProceduralSample(sample.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left p-2 rounded-md bg-[#08090E] border border-white/10 text-xs text-zinc-300 hover:text-white flex justify-between items-center"
+                >
+                  <span className="font-medium truncate">{sample.name}</span>
+                  <span className="text-[10px] text-zinc-500 font-mono">{sample.category}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* URL Capture on Mobile */}
+          <div className="space-y-2 pt-2 border-t border-white/10">
+            <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400">Analyze Website URL</span>
+            <form onSubmit={handleUrlSubmit} className="flex gap-2">
+              <input
+                type="text"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                placeholder="https://example.com"
+                className="flex-1 bg-[#08090E] border border-white/15 rounded px-2.5 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#00E599]"
+              />
+              <button
+                type="submit"
+                disabled={isCapturingUrl || !urlInput.trim()}
+                className="px-3 py-1.5 bg-[#00E599] text-[#08090E] rounded text-xs font-semibold hover:bg-[#00E599]/90 disabled:opacity-50"
+              >
+                Fetch
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

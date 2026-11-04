@@ -14,6 +14,7 @@ import {
   Palette,
   Shapes,
   Type,
+  X,
 } from 'lucide-react';
 
 interface StudioMetricsRailProps {
@@ -22,6 +23,7 @@ interface StudioMetricsRailProps {
   onSelectAoi: (id: string | null) => void;
   selectedAoiId: string | null;
   onDeleteAoi: (id: string) => void;
+  onCloseMobile?: () => void;
 }
 
 export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
@@ -30,12 +32,21 @@ export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
   onSelectAoi,
   selectedAoiId,
   onDeleteAoi,
+  onCloseMobile,
 }) => {
   const [activeTab, setActiveTab] = useState<'aois' | 'fixations' | 'diagnostics'>('aois');
 
   if (!analysis) {
     return (
-      <aside className="w-80 bg-[#11131C] border-l border-white/10 p-4 flex flex-col items-center justify-center text-center text-zinc-500 text-xs">
+      <aside className="w-full lg:w-80 bg-[#11131C] border-l border-white/10 p-4 flex flex-col items-center justify-center text-center text-zinc-500 text-xs">
+        {onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            className="lg:hidden self-end p-1 text-zinc-400 hover:text-white"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
         <Activity className="w-8 h-8 opacity-30 mb-2" />
         <p>No active saliency tensor computed.</p>
         <p className="text-[11px] text-zinc-600 mt-1">Upload an asset or choose a benchmark to start.</p>
@@ -61,7 +72,7 @@ export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
       : { label: 'High Cognitive Load', color: 'text-rose-400 bg-rose-500/10 border-rose-500/30' };
 
   return (
-    <aside className="w-84 bg-[#11131C] border-l border-white/10 flex flex-col h-full overflow-hidden select-none z-20">
+    <aside className="w-full lg:w-84 bg-[#11131C] border-l border-white/10 flex flex-col h-full overflow-hidden select-none z-20">
       {/* Top Scores Header */}
       <div className="p-4 border-b border-white/10 space-y-3">
         <div className="flex items-center justify-between">
@@ -69,7 +80,18 @@ export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
             <Zap className="w-3.5 h-3.5 text-[#00E599]" />
             Cognitive Diagnostics
           </span>
-          <span className="text-[10px] font-mono text-zinc-500">{analysis.computeTimeMs ?? 24}ms</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono text-zinc-500">{analysis.computeTimeMs ?? 24}ms</span>
+            {onCloseMobile && (
+              <button
+                onClick={onCloseMobile}
+                className="lg:hidden p-1 rounded hover:bg-white/10 text-zinc-400 hover:text-white"
+                title="Close sheet"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-2.5">
