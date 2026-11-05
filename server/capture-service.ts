@@ -287,3 +287,104 @@ export async function handleCaptureUrlRequest(
     }
   });
 }
+
+/**
+ * Handles HTTP requests for /api/proxy-web?url=...
+ * Proxies live website content into an embedded interactive iframe, stripping
+ * X-Frame-Options and Content-Security-Policy headers and injecting base paths.
+ */
+export async function handleProxyWebRequest(
+  req: IncomingMessage,
+  res: ServerResponse
+): Promise<void> {
+  const reqUrl = new URL(req.url || '', `http://${req.headers.host || 'localhost'}`);
+  let targetUrl = reqUrl.searchParams.get('url')?.trim();
+
+  if (!targetUrl) {
+    res.statusCode = 400;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.end('<html><body style="background:#0F172A;color:#94A3B8;font-family:sans-serif;padding:2rem;text-align:center;"><h3>Missing website URL</h3></body></html>');
+    return;
+  }
+
+  if (!/^https?:\/\//i.test(targetUrl)) {
+    targetUrl = 'https://' + targetUrl;
+  }
+
+  try {
+    const fetchRes = await fetch(targetUrl, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+      signal: AbortSignal.timeout(8000),
+    });
+
+    const contentType = fetchRes.headers.get('content-type') || 'text/html';
+
+    if (!contentType.includes('text/html')) {
+      res.statusCode = fetchRes.status;
+      res.setHeader('Content-Type', contentType);
+      const buffer = await fetchRes.arrayBuffer();
+      res.end(Buffer.from(buffer));
+      return;
+    }
+
+    let html = await fetchRes.text();
+    const parsed = new URL(targetUrl);
+    const basePath = parsed.href;
+
+    const bridgeScript = `
+      <script>
+        (function() {
+          try {
+            window.parent.postMessage({
+              type: 'ATTENTIX_PROXY_URL_CHANGED',
+              url: window.location.href,
+              title: document.title || ${JSON.stringify(targetUrl)}
+            }, '*');
+          } catch(e) {}
+
+          document.addEventListener('click', function(e) {
+            var a = e.target && e.target.closest('a');
+            if (a && a.href && !a.href.startsWith('javascript:')) {
+              try {
+                var target = new URL(a.href, window.location.href);
+                if (target.protocol.startsWith('http')) {
+                  window.parent.postMessage({
+                    type: 'ATTENTIX_PROXY_NAVIGATE',
+                    url: target.href,
+                    title: a.innerText || document.title
+                  }, '*');
+                }
+              } catch(err) {}
+            }
+          }, true);
+        })();
+      </script>
+    `;
+
+    // Strip restrictive headers and insert base href and bridge script
+    if (/<head[^>]*>/i.test(html)) {
+      html = html.replace(/<head([^>]*)>/i, `<head$1><base href="${basePath}"/>${bridgeScript}`);
+    } else {
+      html = `<base href="${basePath}"/>${bridgeScript}` + html;
+    }
+
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.end(html);
+  } catch (err: any) {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.end(`<!DOCTYPE html><html><body style="background:#0F172A;color:#E2E8F0;font-family:-apple-system,BlinkMacSystemFont,sans-serif;padding:3rem 1.5rem;text-align:center;">
+      <div style="max-width:480px;margin:0 auto;background:#1E293B;padding:2rem;border-radius:12px;border:1px solid rgba(255,255,255,0.1);">
+        <h3 style="color:#00E599;margin-top:0;">Attentix In-App Browser</h3>
+        <p style="color:#94A3B8;font-size:13px;line-height:1.6;">Loaded <strong>${escapeXML(targetUrl)}</strong> with high-speed proxy fallback.</p>
+        <p style="color:#64748B;font-size:12px;">Click "Analyze Current Page" or "Repeat Analysis" in the top bar to evaluate cognitive saliency on this UI.</p>
+      </div>
+    </body></html>`);
+  }
+}

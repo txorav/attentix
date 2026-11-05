@@ -13,6 +13,9 @@ import {
   HelpCircle,
   Layers,
   ChevronDown,
+  Globe,
+  RotateCw,
+  Loader2,
 } from 'lucide-react';
 
 interface StudioControlsRailProps {
@@ -37,6 +40,11 @@ interface StudioControlsRailProps {
   onToggleAoiOverlay?: (show: boolean) => void;
   showContours?: boolean;
   onChangeShowContours?: (val: boolean) => void;
+  isWebsiteProject?: boolean;
+  isWebsiteMode?: boolean;
+  onToggleWebsiteMode?: (val: boolean) => void;
+  onRepeatAnalysis?: () => void;
+  isAnalyzing?: boolean;
 }
 
 export const StudioControlsRail: React.FC<StudioControlsRailProps> = ({
@@ -61,6 +69,11 @@ export const StudioControlsRail: React.FC<StudioControlsRailProps> = ({
   onToggleAoiOverlay,
   showContours = true,
   onChangeShowContours,
+  isWebsiteProject = false,
+  isWebsiteMode = false,
+  onToggleWebsiteMode,
+  onRepeatAnalysis,
+  isAnalyzing = false,
 }) => {
   const [isPlayingGaze, setIsPlayingGaze] = useState(false);
 
@@ -117,7 +130,7 @@ export const StudioControlsRail: React.FC<StudioControlsRailProps> = ({
 
   return (
     <div className="h-12 bg-[#11131C] border-b border-white/10 px-2 sm:px-4 flex items-center justify-between select-none z-20 gap-3 overflow-x-auto whitespace-nowrap">
-      {/* Product Feature Indicator & View Mode Selector */}
+        {/* Product Feature Indicator & View Mode Selector */}
       <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
         {/* Exactly One Product Feature Tab */}
         <div className="hidden sm:flex items-center gap-2 pr-3 border-r border-white/10">
@@ -128,6 +141,35 @@ export const StudioControlsRail: React.FC<StudioControlsRailProps> = ({
             Attention Heatmap & Analysis
           </span>
         </div>
+
+        {/* Website Interactive Studio Mode Switcher */}
+        {isWebsiteProject && onToggleWebsiteMode && (
+          <button
+            onClick={() => onToggleWebsiteMode(!isWebsiteMode)}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+              isWebsiteMode
+                ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                : 'bg-white/5 text-zinc-300 border border-white/10 hover:bg-white/10'
+            }`}
+            title={isWebsiteMode ? 'Switch to Standard Canvas View' : 'Use Website Inside Tool (Live Interactive Mode)'}
+          >
+            <Globe className="w-3.5 h-3.5 text-cyan-400" />
+            <span>{isWebsiteMode ? 'Live Web Active' : 'Use Website Inside Tool'}</span>
+          </button>
+        )}
+
+        {/* Repeat Analysis Quick Action */}
+        {onRepeatAnalysis && (
+          <button
+            onClick={onRepeatAnalysis}
+            disabled={isAnalyzing}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 text-zinc-200 border border-white/10 text-xs font-mono transition-colors disabled:opacity-50"
+            title="Repeat full UI analysis on current page"
+          >
+            <RotateCw className={`w-3.5 h-3.5 text-[#00E599] ${isAnalyzing ? 'animate-spin' : ''}`} />
+            <span className="hidden md:inline">Repeat Analysis</span>
+          </button>
+        )}
 
         {/* Hero View Toggles on the Canvas */}
         <div className="flex items-center gap-1 bg-[#08090E] p-1 rounded-lg border border-white/10 text-xs">

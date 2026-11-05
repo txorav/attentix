@@ -1,4 +1,14 @@
-import { AOIRegion, ColormapTheme, DomainPreset, ModelTier, ScriptDirection, ViewingDuration, VisualMode } from '../types/studio';
+import {
+  AOIRegion,
+  ColormapTheme,
+  DomainPreset,
+  ModelTier,
+  SavedAnalysisSnapshot,
+  ScriptDirection,
+  ViewingDuration,
+  ViewportMode,
+  VisualMode,
+} from '../types/studio';
 
 export interface StudioProject {
   id: string;
@@ -23,6 +33,11 @@ export interface StudioProject {
     clarityScore: number;
     cognitiveLoadScore: number;
   };
+  // Website Live Interactive Browser & AI Analysis History
+  websiteUrl?: string;
+  isWebsiteProject?: boolean;
+  activeWebsiteViewport?: ViewportMode;
+  savedAnalyses?: SavedAnalysisSnapshot[];
 }
 
 const STORAGE_PROJECTS_KEY = 'attentix_studio_projects';
@@ -135,4 +150,53 @@ export function removeProject(id: string): StudioProject[] {
   }
 
   return filtered;
+}
+
+/**
+ * Appends a saved AI analysis snapshot to a project
+ */
+export function addAnalysisSnapshotToProject(
+  projectId: string,
+  snapshot: SavedAnalysisSnapshot
+): StudioProject[] {
+  const all = loadAllProjects();
+  const idx = all.findIndex((p) => p.id === projectId);
+  if (idx === -1) return all;
+
+  const currentSnapshots = all[idx].savedAnalyses || [];
+  // Keep up to 20 most recent snapshots
+  const updatedSnapshots = [snapshot, ...currentSnapshots].slice(0, 20);
+
+  all[idx] = {
+    ...all[idx],
+    updatedAt: Date.now(),
+    savedAnalyses: updatedSnapshots,
+  };
+
+  saveAllProjects(all);
+  return all;
+}
+
+/**
+ * Removes a saved analysis snapshot from a project
+ */
+export function removeAnalysisSnapshotFromProject(
+  projectId: string,
+  snapshotId: string
+): StudioProject[] {
+  const all = loadAllProjects();
+  const idx = all.findIndex((p) => p.id === projectId);
+  if (idx === -1) return all;
+
+  const currentSnapshots = all[idx].savedAnalyses || [];
+  const updatedSnapshots = currentSnapshots.filter((s) => s.id !== snapshotId);
+
+  all[idx] = {
+    ...all[idx],
+    updatedAt: Date.now(),
+    savedAnalyses: updatedSnapshots,
+  };
+
+  saveAllProjects(all);
+  return all;
 }

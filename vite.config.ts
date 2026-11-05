@@ -1,7 +1,7 @@
 import { defineConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { handleCaptureUrlRequest } from './server/capture-service';
+import { handleCaptureUrlRequest, handleProxyWebRequest } from './server/capture-service';
 
 function urlCapturePlugin(): Plugin {
   return {
@@ -10,10 +10,16 @@ function urlCapturePlugin(): Plugin {
       server.middlewares.use('/api/capture-url', (req, res) => {
         handleCaptureUrlRequest(req, res);
       });
+      server.middlewares.use('/api/proxy-web', (req, res) => {
+        handleProxyWebRequest(req, res);
+      });
     },
     configurePreviewServer(server) {
       server.middlewares.use('/api/capture-url', (req, res) => {
         handleCaptureUrlRequest(req, res);
+      });
+      server.middlewares.use('/api/proxy-web', (req, res) => {
+        handleProxyWebRequest(req, res);
       });
     },
   };

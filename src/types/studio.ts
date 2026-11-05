@@ -67,6 +67,26 @@ export interface WebsiteCapturePayload {
   domElements: DOMSemanticElement[];
 }
 
+export interface SavedAnalysisSnapshot {
+  id: string;
+  url: string;
+  pageTitle: string;
+  timestamp: number;
+  viewport: ViewportMode;
+  clarityScore: number;
+  cognitiveLoadScore: number;
+  colorLoadScore?: number;
+  shapeLoadScore?: number;
+  textLoadScore?: number;
+  aoiCount: number;
+  fixationsCount: number;
+  imageDataUrl: string;
+  analysisResult: SaliencyTensorResult;
+  aois: AOIRegion[];
+  aiInsights: string[];
+  notes?: string;
+}
+
 export interface SaliencyTensorResult {
   width: number;
   height: number;

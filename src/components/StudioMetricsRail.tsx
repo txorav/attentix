@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AOIRegion, SaliencyTensorResult } from '../types/studio';
+import { AOIRegion, SavedAnalysisSnapshot, SaliencyTensorResult } from '../types/studio';
 import {
   Activity,
   Zap,
@@ -16,6 +16,10 @@ import {
   Type,
   X,
   Loader2,
+  RotateCw,
+  Bookmark,
+  ExternalLink,
+  ChevronRight,
 } from 'lucide-react';
 
 interface StudioMetricsRailProps {
@@ -26,6 +30,10 @@ interface StudioMetricsRailProps {
   selectedAoiId: string | null;
   onDeleteAoi: (id: string) => void;
   onCloseMobile?: () => void;
+  savedSnapshots?: SavedAnalysisSnapshot[];
+  onRepeatAnalysis?: (url?: string) => void;
+  onRestoreSnapshot?: (snapshot: SavedAnalysisSnapshot) => void;
+  onDeleteSnapshot?: (id: string) => void;
 }
 
 export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
@@ -36,8 +44,12 @@ export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
   selectedAoiId,
   onDeleteAoi,
   onCloseMobile,
+  savedSnapshots = [],
+  onRepeatAnalysis,
+  onRestoreSnapshot,
+  onDeleteSnapshot,
 }) => {
-  const [activeTab, setActiveTab] = useState<'aois' | 'fixations' | 'diagnostics'>('aois');
+  const [activeTab, setActiveTab] = useState<'aois' | 'fixations' | 'diagnostics' | 'history'>('aois');
 
   if (!analysis) {
     return (
@@ -109,6 +121,17 @@ export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
             Cognitive Diagnostics
           </span>
           <div className="flex items-center gap-2">
+            {onRepeatAnalysis && (
+              <button
+                onClick={() => onRepeatAnalysis()}
+                disabled={isAnalyzing}
+                className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-[10px] font-mono text-zinc-300 hover:text-white border border-white/10 transition-colors"
+                title="Repeat full UI analysis"
+              >
+                <RotateCw className={`w-3 h-3 text-[#00E599] ${isAnalyzing ? 'animate-spin' : ''}`} />
+                <span>Repeat</span>
+              </button>
+            )}
             <span className="text-[10px] font-mono text-zinc-500">{analysis.computeTimeMs ?? 24}ms</span>
             {onCloseMobile && (
               <button
@@ -252,6 +275,17 @@ export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
           }`}
         >
           Quantiles
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`flex-1 py-2 text-center border-b-2 font-medium transition-colors ${
+            activeTab === 'history'
+              ? 'border-[#00E599] text-[#00E599]'
+              : 'border-transparent text-zinc-400 hover:text-white'
+          }`}
+          title="Saved AI Analysis Snapshots"
+        >
+          History ({savedSnapshots.length})
         </button>
       </div>
 
@@ -508,6 +542,117 @@ export const StudioMetricsRail: React.FC<StudioMetricsRailProps> = ({
                 No simulated eye-tracker multipliers or fake random constants are used.
               </p>
             </div>
+          </div>
+        )}
+
+        {/* TAB 4: Saved AI History & Snapshots */}
+        {activeTab === 'history' && (
+          <div className="space-y-2.5">
+            {savedSnapshots.length === 0 ? (
+              <div className="p-4 text-center text-zinc-500 text-xs space-y-1.5">
+                <Bookmark className="w-6 h-6 mx-auto opacity-40 mb-1 text-zinc-400" />
+                <p className="font-medium text-zinc-300">No Saved Analyses Yet</p>
+                <p className="text-[10px] text-zinc-500 leading-relaxed">
+                  When analyzing live websites or designs, click "Analyze Page" or "Repeat Analysis" to save AI telemetry snapshots.
+                </p>
+              </div>
+            ) : (
+              savedSnapshots.map((snap, idx) => (
+                <div
+                  key={snap.id}
+                  className="p-3 rounded-lg bg-[#08090E] border border-white/10 hover:border-white/20 transition-all space-y-2"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-white truncate max-w-[150px]">
+                          {snap.pageTitle || 'Website Analysis'}
+                        </span>
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-white/5 border border-white/10 text-zinc-400">
+                          {snap.viewport || 'desktop'}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-zinc-500 truncate block mt-0.5">
+                        {snap.url}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      {onRepeatAnalysis && (
+                        <button
+                          onClick={() => onRepeatAnalysis(snap.url)}
+                          disabled={isAnalyzing}
+                          className="p-1 rounded bg-white/5 hover:bg-white/15 text-zinc-300 hover:text-[#00E599] transition-colors"
+                          title="Repeat this analysis"
+                        >
+                          <RotateCw className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin text-[#00E599]' : ''}`} />
+                        </button>
+                      )}
+                      {onDeleteSnapshot && (
+                        <button
+                          onClick={() => onDeleteSnapshot(snap.id)}
+                          className="p-1 rounded hover:bg-rose-500/20 text-zinc-500 hover:text-rose-400 transition-colors"
+                          title="Delete snapshot"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Score Pills */}
+                  <div className="grid grid-cols-3 gap-1.5 text-center font-mono text-[10px]">
+                    <div className="p-1.5 rounded bg-white/5 border border-white/5">
+                      <span className="text-zinc-500 block text-[8px]">CLARITY</span>
+                      <span className="text-[#00E599] font-bold">{snap.clarityScore}%</span>
+                    </div>
+                    <div className="p-1.5 rounded bg-white/5 border border-white/5">
+                      <span className="text-zinc-500 block text-[8px]">COG LOAD</span>
+                      <span className="text-rose-400 font-bold">{snap.cognitiveLoadScore}%</span>
+                    </div>
+                    <div className="p-1.5 rounded bg-white/5 border border-white/5">
+                      <span className="text-zinc-500 block text-[8px]">AOIS</span>
+                      <span className="text-zinc-300 font-bold">{snap.aoiCount}</span>
+                    </div>
+                  </div>
+
+                  {/* AI Insights bullets */}
+                  {snap.aiInsights && snap.aiInsights.length > 0 && (
+                    <div className="p-2 rounded bg-white/5 border border-white/5 space-y-1">
+                      <span className="text-[9px] font-mono uppercase text-zinc-400 flex items-center gap-1 font-semibold">
+                        <Sparkles className="w-2.5 h-2.5 text-[#00E599]" />
+                        AI Telemetry Insights
+                      </span>
+                      {snap.aiInsights.slice(0, 2).map((insight, i) => (
+                        <p key={i} className="text-[10px] text-zinc-300 leading-snug">
+                          • {insight}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+
+                  {snap.notes && (
+                    <p className="text-[10px] text-zinc-400 italic bg-white/5 p-1.5 rounded">
+                      "{snap.notes}"
+                    </p>
+                  )}
+
+                  {/* Action footer */}
+                  <div className="flex items-center justify-between pt-1 text-[10px] text-zinc-500 font-mono">
+                    <span>{new Date(snap.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    {onRestoreSnapshot && (
+                      <button
+                        onClick={() => onRestoreSnapshot(snap)}
+                        className="text-[#00E599] hover:underline flex items-center gap-0.5 font-medium"
+                      >
+                        <span>View Heatmap</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>
