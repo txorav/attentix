@@ -30,6 +30,8 @@ import {
   Maximize2,
   Info,
   Loader2,
+  Layout,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface InteractiveWebsiteStudioProps {
@@ -78,6 +80,7 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
   const [historyIndex, setHistoryIndex] = useState(0);
   const [iframeKey, setIframeKey] = useState(1);
   const [interactiveMode, setInteractiveMode] = useState<'browse' | 'overlay' | 'split'>('browse');
+  const [browseSubView, setBrowseSubView] = useState<'live' | 'layout'>('live');
   const [splitPos, setSplitPos] = useState(50); // percentage
   const [isSavedRecently, setIsSavedRecently] = useState(false);
   const [showNotesInput, setShowNotesInput] = useState(false);
@@ -94,16 +97,32 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
     }
   }, [initialUrl]);
 
-  // Compute proxy URL
-  const proxyUrl = (() => {
+  // Detect whether we are running in a local Node backend environment or static web host (GitHub Pages)
+  const isLocalBackend =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.port === '3000' ||
+      window.location.port === '5173');
+
+  // Compute active iframe source:
+  // On local dev with backend middleware: use /api/proxy-web to strip framing headers
+  // On static hosting (e.g. txorav.me / GitHub Pages): directly embed the target URL.
+  // NEVER request relative /api/proxy-web on static hosting to avoid displaying the domain's 404 error page.
+  const activeIframeSrc = (() => {
     let target = currentUrl.trim();
     if (!/^https?:\/\//i.test(target)) {
       target = 'https://' + target;
     }
-    return `/api/proxy-web?url=${encodeURIComponent(target)}`;
+
+    if (isLocalBackend) {
+      return `/api/proxy-web?url=${encodeURIComponent(target)}`;
+    }
+
+    return target;
   })();
 
-  // Listen to navigation messages from the proxy bridge script inside iframe
+  // Listen to navigation messages from the proxy bridge script inside iframe (if local proxy is used)
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (!e.data || typeof e.data !== 'object') return;
@@ -111,7 +130,6 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
       if (e.data.type === 'ATTENTIX_PROXY_URL_CHANGED' || e.data.type === 'ATTENTIX_PROXY_NAVIGATE') {
         const navigatedUrl = e.data.url;
         if (navigatedUrl && typeof navigatedUrl === 'string') {
-          // If the message is a full external URL
           let cleanUrl = navigatedUrl;
           if (cleanUrl.includes('/api/proxy-web?url=')) {
             try {
@@ -239,14 +257,25 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://example.com"
-              className="w-full bg-[#08090E] border border-white/15 focus:border-[#00E599] rounded-lg pl-8 pr-16 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 font-mono outline-none transition-colors"
+              className="w-full bg-[#08090E] border border-white/15 focus:border-[#00E599] rounded-lg pl-8 pr-24 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 font-mono outline-none transition-colors"
             />
-            <button
-              type="submit"
-              className="absolute right-1 px-2 py-0.5 rounded text-[11px] font-mono bg-white/10 hover:bg-[#00E599] hover:text-[#08090E] text-zinc-300 font-medium transition-colors"
-            >
-              Go
-            </button>
+            <div className="absolute right-1 flex items-center gap-1">
+              <a
+                href={currentUrl.startsWith('http') ? currentUrl : `https://${currentUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1 rounded text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                title="Open webpage in external browser tab"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              <button
+                type="submit"
+                className="px-2 py-0.5 rounded text-[11px] font-mono bg-white/10 hover:bg-[#00E599] hover:text-[#08090E] text-zinc-300 font-medium transition-colors"
+              >
+                Go
+              </button>
+            </div>
           </form>
         </div>
 
@@ -293,7 +322,7 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
                 ? 'bg-blue-600 text-white font-semibold shadow-sm'
                 : 'text-zinc-400 hover:text-white'
             }`}
-            title="Use website inside the tool: click links, navigate, scroll, explore"
+            title="Use website inside the tool: explore live or simulated responsive UI"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span className="text-[11px]">Use Website</span>
@@ -415,43 +444,91 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
           }}
         >
           {/* Device Bezel Top Pill */}
-          <div className="h-6 bg-[#1E293B] border-b border-white/10 px-3 flex items-center justify-between text-[11px] text-zinc-400 select-none">
+          <div className="h-7 bg-[#1E293B] border-b border-white/10 px-3 flex items-center justify-between text-[11px] text-zinc-400 select-none">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-red-500/80" />
               <span className="w-2 h-2 rounded-full bg-amber-500/80" />
               <span className="w-2 h-2 rounded-full bg-emerald-500/80" />
-              <span className="text-[10px] font-mono text-zinc-500 ml-2 truncate max-w-[280px]">
+              <span className="text-[10px] font-mono text-zinc-400 ml-2 truncate max-w-[240px] sm:max-w-[320px]">
                 {currentUrl}
               </span>
             </div>
+
             <div className="flex items-center gap-2 font-mono text-[10px] text-zinc-400">
+              {/* Sub-view toggle between Live Iframe and UI Layout Simulation */}
+              {interactiveMode === 'browse' && (
+                <div className="flex items-center bg-[#0F172A] rounded p-0.5 border border-white/10">
+                  <button
+                    onClick={() => setBrowseSubView('live')}
+                    className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
+                      browseSubView === 'live'
+                        ? 'bg-[#00E599] text-[#08090E] font-semibold'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                    title="Live interactive iframe embed"
+                  >
+                    Live Embed
+                  </button>
+                  <button
+                    onClick={() => setBrowseSubView('layout')}
+                    className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
+                      browseSubView === 'layout'
+                        ? 'bg-[#00E599] text-[#08090E] font-semibold'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                    title="High-fidelity UI simulation layout"
+                  >
+                    UI Layout
+                  </button>
+                </div>
+              )}
+
               <span className="px-1.5 py-0.2 rounded bg-white/5 border border-white/10">
                 {viewportDims.width} × {viewportDims.height}
               </span>
+
               {interactiveMode === 'browse' && (
                 <span className="text-emerald-400 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Live Interactive
+                  {isLocalBackend ? 'Live Proxy' : 'In-App Web'}
                 </span>
               )}
             </div>
           </div>
 
           {/* Interactive Frame Body */}
-          <div className="relative flex-1 w-full h-full overflow-hidden bg-white">
+          <div className="relative flex-1 w-full h-full overflow-hidden bg-[#0A0E1A]">
             {/* Live Interactive Iframe */}
-            <iframe
-              key={iframeKey}
-              ref={iframeRef}
-              src={proxyUrl}
-              title="Live Interactive Website"
-              sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-              onLoad={() => setIsIframeLoaded(true)}
-              className="w-full h-full border-0 block"
-              style={{
-                pointerEvents: interactiveMode === 'browse' || interactiveMode === 'split' ? 'auto' : 'none',
-              }}
-            />
+            {browseSubView === 'live' && (
+              <iframe
+                key={iframeKey}
+                ref={iframeRef}
+                src={activeIframeSrc}
+                title="Live Interactive Website"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                onLoad={() => setIsIframeLoaded(true)}
+                className="w-full h-full border-0 block"
+                style={{
+                  pointerEvents: interactiveMode === 'browse' || interactiveMode === 'split' ? 'auto' : 'none',
+                }}
+              />
+            )}
+
+            {/* UI Layout Simulation Mode (used if site blocks iframe embedding or user wants to inspect layout) */}
+            {(browseSubView === 'layout' || interactiveMode === 'overlay' || interactiveMode === 'split') &&
+              imageElement && (
+                <div
+                  className={`absolute inset-0 overflow-auto ${
+                    interactiveMode === 'browse' ? 'pointer-events-auto' : 'pointer-events-none'
+                  }`}
+                >
+                  <img
+                    src={imageElement.src}
+                    alt="Analyzed Page UI Layout"
+                    className="w-full h-full object-cover select-none"
+                  />
+                </div>
+              )}
 
             {/* Saliency Attention Overlay Layer */}
             {interactiveMode === 'overlay' && imageElement && (
@@ -588,18 +665,22 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
 
         {/* Floating Instruction Banner in Browse Mode */}
         {interactiveMode === 'browse' && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 bg-[#11131C]/95 backdrop-blur-md border border-white/15 px-4 py-2 rounded-full shadow-2xl flex items-center gap-3 text-xs font-mono text-zinc-300">
-            <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 bg-[#11131C]/95 backdrop-blur-md border border-white/15 px-4 py-2 rounded-full shadow-2xl flex items-center gap-3 text-xs font-mono text-zinc-300 max-w-[90vw] overflow-x-auto">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-semibold flex-shrink-0">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               Use Website Inside Tool
             </span>
-            <span className="text-zinc-600">•</span>
-            <span className="text-zinc-400">Click any link or scroll down to explore</span>
-            <span className="text-zinc-600">•</span>
+            <span className="text-zinc-600 flex-shrink-0">•</span>
+            <span className="text-zinc-400 truncate flex-shrink-0">
+              {browseSubView === 'live'
+                ? 'Browse, click links & test responsiveness'
+                : 'Inspecting high-fidelity responsive UI layout'}
+            </span>
+            <span className="text-zinc-600 flex-shrink-0">•</span>
             <button
               onClick={handleTriggerAnalyze}
               disabled={isAnalyzing}
-              className="px-2.5 py-1 rounded bg-[#00E599] text-[#08090E] font-bold hover:bg-[#00E599]/90 transition-colors flex items-center gap-1"
+              className="px-2.5 py-1 rounded bg-[#00E599] text-[#08090E] font-bold hover:bg-[#00E599]/90 transition-colors flex items-center gap-1 flex-shrink-0"
             >
               <Sparkles className="w-3 h-3" />
               Analyze This Page
