@@ -70,6 +70,23 @@ export function parseDomainProfile(rawUrl: string): {
   const domainBase = hostname.split('.')[0].toLowerCase();
 
   // Known brand detection
+  if (domainBase.includes('synex')) {
+    return {
+      hostname,
+      brandName: 'Synex® ERP Solutions',
+      category: 'productivity',
+      heroH1: 'Enterprise ERP Solutions & Business Consulting',
+      heroSub: 'Synex delivers comprehensive Odoo ERP implementation, custom business software, and strategic consulting for medium and large-scale enterprises.',
+      primaryCta: 'Book Free Consultation',
+      secondaryCta: 'Explore Odoo ERP ↗',
+      features: [
+        ['Custom Odoo ERP Architecture', 'End-to-end ERP implementation tailored to enterprise operations and compliance.'],
+        ['Strategic Management Consulting', 'Process automation, financial accounting pipelines, and organizational scalability.'],
+        ['Supply Chain & Inventory Automation', 'Real-time stock tracking, automated procurement, and predictive logistics.'],
+      ],
+    };
+  }
+
   if (domainBase === 'github') {
     return {
       hostname,

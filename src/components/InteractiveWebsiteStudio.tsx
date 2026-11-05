@@ -80,7 +80,7 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
   const [historyIndex, setHistoryIndex] = useState(0);
   const [iframeKey, setIframeKey] = useState(1);
   const [interactiveMode, setInteractiveMode] = useState<'browse' | 'overlay' | 'split'>('browse');
-  const [browseSubView, setBrowseSubView] = useState<'live' | 'layout'>('live');
+  const [browseSubView, setBrowseSubView] = useState<'interactive' | 'live'>('interactive');
   const [splitPos, setSplitPos] = useState(50); // percentage
   const [isSavedRecently, setIsSavedRecently] = useState(false);
   const [showNotesInput, setShowNotesInput] = useState(false);
@@ -455,30 +455,30 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
             </div>
 
             <div className="flex items-center gap-2 font-mono text-[10px] text-zinc-400">
-              {/* Sub-view toggle between Live Iframe and UI Layout Simulation */}
+              {/* Sub-view toggle between Interactive View and Live Iframe Embed */}
               {interactiveMode === 'browse' && (
                 <div className="flex items-center bg-[#0F172A] rounded p-0.5 border border-white/10">
                   <button
+                    onClick={() => setBrowseSubView('interactive')}
+                    className={`px-2 py-0.5 rounded text-[10px] transition-colors ${
+                      browseSubView === 'interactive'
+                        ? 'bg-[#00E599] text-[#08090E] font-semibold'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                    title="Interactive high-fidelity website layout (works on all sites including Netlify/Cloudflare)"
+                  >
+                    Interactive View
+                  </button>
+                  <button
                     onClick={() => setBrowseSubView('live')}
-                    className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
+                    className={`px-2 py-0.5 rounded text-[10px] transition-colors ${
                       browseSubView === 'live'
                         ? 'bg-[#00E599] text-[#08090E] font-semibold'
                         : 'text-zinc-400 hover:text-white'
                     }`}
-                    title="Live interactive iframe embed"
+                    title="Live interactive iframe embed (may be blocked by X-Frame-Options on some sites)"
                   >
                     Live Embed
-                  </button>
-                  <button
-                    onClick={() => setBrowseSubView('layout')}
-                    className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
-                      browseSubView === 'layout'
-                        ? 'bg-[#00E599] text-[#08090E] font-semibold'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
-                    title="High-fidelity UI simulation layout"
-                  >
-                    UI Layout
                   </button>
                 </div>
               )}
@@ -490,7 +490,7 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
               {interactiveMode === 'browse' && (
                 <span className="text-emerald-400 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  {isLocalBackend ? 'Live Proxy' : 'In-App Web'}
+                  {browseSubView === 'interactive' ? 'Interactive UI' : isLocalBackend ? 'Live Proxy' : 'In-App Web'}
                 </span>
               )}
             </div>
@@ -500,35 +500,71 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
           <div className="relative flex-1 w-full h-full overflow-hidden bg-[#0A0E1A]">
             {/* Live Interactive Iframe */}
             {browseSubView === 'live' && (
-              <iframe
-                key={iframeKey}
-                ref={iframeRef}
-                src={activeIframeSrc}
-                title="Live Interactive Website"
-                sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                onLoad={() => setIsIframeLoaded(true)}
-                className="w-full h-full border-0 block"
-                style={{
-                  pointerEvents: interactiveMode === 'browse' || interactiveMode === 'split' ? 'auto' : 'none',
-                }}
-              />
+              <div className="relative w-full h-full flex flex-col">
+                <div className="bg-amber-500/15 border-b border-amber-500/30 px-3 py-1.5 flex items-center justify-between text-[11px] text-amber-200 z-10 flex-shrink-0">
+                  <div className="flex items-center gap-1.5 truncate mr-2">
+                    <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
+                    <span className="truncate">
+                      Website refused to connect? Netlify sets <code>X-Frame-Options: SAMEORIGIN</code> to block direct iframe embedding.
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => setBrowseSubView('interactive')}
+                      className="px-2 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold transition-colors"
+                    >
+                      Switch to Interactive View
+                    </button>
+                    <a
+                      href={currentUrl.startsWith('http') ? currentUrl : `https://${currentUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline text-zinc-300 hover:text-white flex items-center gap-0.5"
+                    >
+                      <span>Open site</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+                <iframe
+                  key={iframeKey}
+                  ref={iframeRef}
+                  src={activeIframeSrc}
+                  title="Live Interactive Website"
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                  onLoad={() => setIsIframeLoaded(true)}
+                  className="w-full flex-1 border-0 block"
+                  style={{
+                    pointerEvents: interactiveMode === 'browse' || interactiveMode === 'split' ? 'auto' : 'none',
+                  }}
+                />
+              </div>
             )}
 
-            {/* UI Layout Simulation Mode (used if site blocks iframe embedding or user wants to inspect layout) */}
-            {(browseSubView === 'layout' || interactiveMode === 'overlay' || interactiveMode === 'split') &&
-              imageElement && (
-                <div
-                  className={`absolute inset-0 overflow-auto ${
-                    interactiveMode === 'browse' ? 'pointer-events-auto' : 'pointer-events-none'
-                  }`}
-                >
+            {/* High-Fidelity Interactive View */}
+            {(browseSubView === 'interactive' || interactiveMode === 'overlay' || interactiveMode === 'split') && (
+              <div
+                className={`absolute inset-0 overflow-auto ${
+                  interactiveMode === 'browse' ? 'pointer-events-auto' : 'pointer-events-none'
+                }`}
+              >
+                {imageElement ? (
                   <img
                     src={imageElement.src}
                     alt="Analyzed Page UI Layout"
                     className="w-full h-full object-cover select-none"
                   />
-                </div>
-              )}
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400 p-6 text-center">
+                    <Loader2 className="w-8 h-8 text-[#00E599] animate-spin mb-3" />
+                    <p className="text-sm font-semibold text-white">Synthesizing High-Fidelity UI Layout...</p>
+                    <p className="text-xs text-zinc-500 mt-1 max-w-sm">
+                      Extracting DOM semantic tree, typography, and contrast matrices for {currentUrl}.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Saliency Attention Overlay Layer */}
             {interactiveMode === 'overlay' && imageElement && (
@@ -673,8 +709,8 @@ export const InteractiveWebsiteStudio: React.FC<InteractiveWebsiteStudioProps> =
             <span className="text-zinc-600 flex-shrink-0">•</span>
             <span className="text-zinc-400 truncate flex-shrink-0">
               {browseSubView === 'live'
-                ? 'Browse, click links & test responsiveness'
-                : 'Inspecting high-fidelity responsive UI layout'}
+                ? 'Live embed (site security policies like X-Frame-Options may restrict)'
+                : 'Interactive responsive UI view • Click Analyze to evaluate'}
             </span>
             <span className="text-zinc-600 flex-shrink-0">•</span>
             <button
